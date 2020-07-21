@@ -13,7 +13,14 @@ class BytebankApp extends StatelessWidget {
   }
 }
 
-class FormularioTransferencia extends StatelessWidget {
+class FormularioTransferencia extends StatefulWidget {
+  @override
+  State createState() {
+    return FormularioTransferenciaState();
+  }
+}
+
+class FormularioTransferenciaState extends State<FormularioTransferencia> {
   final TextEditingController _controladorCampoNumeroConta =
       TextEditingController();
   final TextEditingController _controladorCampoValor = TextEditingController();
@@ -24,23 +31,25 @@ class FormularioTransferencia extends StatelessWidget {
       appBar: AppBar(
         title: Text('Criando Transferência'),
       ),
-      body: Column(
-        children: <Widget>[
-          Editor(
-              controlador: _controladorCampoNumeroConta,
-              rotulo: 'Número da conta',
-              dica: '0000'),
-          Editor(
-              controlador: _controladorCampoValor,
-              rotulo: 'Valor',
-              dica: '0.00',
-              icone: Icons.monetization_on),
-          TextField(),
-          RaisedButton(
-            child: Text('Confirmar'),
-            onPressed: () => _criaTransferencia(context),
-          ),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Editor(
+                controlador: _controladorCampoNumeroConta,
+                rotulo: 'Número da conta',
+                dica: '0000'),
+            Editor(
+                controlador: _controladorCampoValor,
+                rotulo: 'Valor',
+                dica: '0.00',
+                icone: Icons.monetization_on),
+            TextField(),
+            RaisedButton(
+              child: Text('Confirmar'),
+              onPressed: () => _criaTransferencia(context),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -76,21 +85,26 @@ class ListaTransferenciasState extends State<ListaTransferencias> {
         title: Text('Transferências'),
       ),
       body: ListView.builder(
-          itemCount: widget._transferencias.length, itemBuilder: (context, indice) {
-        final transferencia = widget._transferencias[indice];
-        return ItemTransferencia(transferencia);
-      }),
+          itemCount: widget._transferencias.length,
+          itemBuilder: (context, indice) {
+            final transferencia = widget._transferencias[indice];
+            return ItemTransferencia(transferencia);
+          }),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          final Future<Transferencia> future = Navigator.push(
-              context, MaterialPageRoute(builder: (context) {
+          final Future<Transferencia> future =
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
             return FormularioTransferencia();
           }));
           future.then((transferenciaRecebida) {
             debugPrint('Chegou no then do future');
             debugPrint('$transferenciaRecebida');
-            widget._transferencias.add(transferenciaRecebida);
+            if (transferenciaRecebida != null) {
+              setState(() {
+                widget._transferencias.add(transferenciaRecebida);
+              });
+            }
           });
         },
       ),
